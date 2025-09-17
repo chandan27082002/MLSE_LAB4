@@ -1,0 +1,38 @@
+stages:
+  preprocess:
+    cmd: python src/preprocess.py
+    deps:
+    - params.yaml
+    - src/preprocess.py
+    - data/raw.csv
+    outs:
+    - data/processed/train.csv
+    - data/processed/test.csv
+
+  train:
+    cmd: python src/train.py
+    deps:
+    - params.yaml
+    - src/train.py
+    - data/processed/train.csv
+    outs:
+    - models/model.pkl
+  
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+      - src/evaluate.py
+      - models/model.pkl
+      - data/processed/test.csv
+    outs:
+      - experiments/results.json:
+          persist: True
+    metrics:
+      - metrics.json
+
+plots:
+  - experiments/results.json:
+     x: n_estimators
+     y: accuracy
+     title: "Random Forest: Accuracy vs n_estimators"
+
